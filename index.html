@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Medical Pulse</title>
+<title>Cardio Pulse</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -11,10 +11,10 @@
 <style>
   html{color-scheme:light dark}
   :root{
-    --bg:#f4f6f8; --surface:#ffffff; --surface-2:#eaeef3; --surface-3:#dfe5ec;
-    --border:#d7dee6; --border-strong:#bfc9d4;
-    --text:#131a22; --text-dim:#57626d; --text-faint:#889199;
-    --accent:#2f5fa0; --accent-strong:#1e3f6e; --accent-soft:#e2eaf6;
+    --bg:#f6f5f7; --surface:#ffffff; --surface-2:#eeecf1; --surface-3:#e4e1e9;
+    --border:#dcd8e2; --border-strong:#c5c0cf;
+    --text:#18151b; --text-dim:#5d5865; --text-faint:#8d8896;
+    --accent:#6a4c8c; --accent-strong:#4f3868; --accent-soft:#ece6f2;
     --good:#3c8f5f; --warn:#a8721f; --bad:#c1483f;
     --font-body:'Public Sans',system-ui,-apple-system,sans-serif;
     --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',monospace;
@@ -25,10 +25,10 @@
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#0f1318; --surface:#161c23; --surface-2:#1e252d; --surface-3:#272f38;
-      --border:#2c343d; --border-strong:#3c4650;
-      --text:#edf0f3; --text-dim:#99a2ac; --text-faint:#6b747d;
-      --accent:#7fa8e0; --accent-strong:#a0c0ea; --accent-soft:#1b2836;
+      --bg:#121016; --surface:#1a171e; --surface-2:#221e27; --surface-3:#2b2631;
+      --border:#332d3a; --border-strong:#453d4e;
+      --text:#efedf1; --text-dim:#a49da9; --text-faint:#726b7a;
+      --accent:#b39ddb; --accent-strong:#cbb8e8; --accent-soft:#2b2338;
       --good:#5fbf85; --warn:#d9a441; --bad:#e0685d;
       --shadow-sm:0 1px 2px rgba(0,0,0,.35);
       --shadow-md:0 8px 24px rgba(0,0,0,.4);
@@ -164,7 +164,7 @@
 
 <header class="top">
   <div class="brand">
-    <h1>Medical Pulse</h1>
+    <h1>Cardio Pulse</h1>
     <div class="sub">Live BI &middot; filtered straight from the Data tab</div>
   </div>
   <div class="top-actions">
@@ -180,7 +180,7 @@
 <div id="status-line"><span class="dot" id="status-dot"></span><span id="status-text">Not connected yet</span></div>
 
 <div id="settings-panel" hidden>
-  <label for="endpoint-input" id="endpoint-label">Appointment endpoint URL</label>
+  <label for="endpoint-input">Apps Script Web App URL</label>
   <input type="url" id="endpoint-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
   <div class="row">
     <button class="primary" id="save-endpoint">Save &amp; load</button>
@@ -191,8 +191,8 @@
 
 <div id="empty-state" hidden>
   <div class="empty-card">
-    <h3 id="empty-title">Connect to the Appointment sheet</h3>
-    <p id="empty-desc">This page reads raw rows through a small read-only endpoint published from that spreadsheet (Apps Script Web App) and does all filtering/aggregation here in the browser. Paste that URL in Settings to connect.</p>
+    <h3>Connect to the Cardio sheet</h3>
+    <p>This page reads raw rows through a small read-only endpoint published from the Cardio spreadsheet (Apps Script Web App) and does all filtering/aggregation here in the browser. Paste that URL in Settings to connect.</p>
     <div class="row"><button class="primary" id="empty-settings-btn">Open settings</button></div>
   </div>
 </div>
@@ -207,11 +207,6 @@
 
 <main id="content" hidden>
   <div id="filters">
-    <select id="line-select">
-      <option value="appointment">Line: Appointment</option>
-      <option value="evisit">Line: E-visit</option>
-    </select>
-    <div class="sep"></div>
     <select id="date-filter-select">
       <option value="lastday">Last day with data</option>
       <option value="last7">Last 7 days</option>
@@ -240,7 +235,6 @@
       <button type="button" id="sm-clear" class="combo-clear" aria-label="Clear Source / Medium filter" hidden>&times;</button>
       <ul id="sm-list" class="combo-list" role="listbox" hidden></ul>
     </div>
-    <select id="brand-select"><option value="">Brand: All</option></select>
     <span id="range-label"></span>
   </div>
 
@@ -283,7 +277,6 @@
           <h3>Breakdown</h3>
           <select id="breakdown-dim-select">
             <option value="channelType">Channel Type</option>
-            <option value="brand">Brand</option>
             <option value="sourceMedium">Source / Medium</option>
             <option value="campaign">Campaign</option>
             <option value="landingPage">Landing Page</option>
@@ -297,9 +290,12 @@
               <th class="sortable" data-sort="name">Group</th>
               <th class="num sortable" data-sort="leads">Leads</th>
               <th class="num sortable" data-sort="mql">MQL</th>
+              <th class="num sortable" data-sort="visit">Visit</th>
+              <th class="num sortable" data-sort="crMqlVisit">MQL&rarr;Visit</th>
               <th class="num sortable" data-sort="orders">Orders</th>
               <th class="num sortable" data-sort="cost">Cost</th>
               <th class="num sortable" data-sort="cpl">CPL</th>
+              <th class="num sortable" data-sort="cpv">CPV</th>
               <th class="num sortable" data-sort="cpo">CPO</th>
             </tr></thead>
             <tbody></tbody>
@@ -429,12 +425,8 @@
   }
 
   // ---------- State ----------
-  // Medical is two separate spreadsheets (Appointment, E-visit) behind two separate Apps Script
-  // deployments — the Line filter switches which endpoint is active and does a full reload, since
-  // the two lines' data/targets/channel types are entirely independent datasets.
-  var LINES = { appointment: { label: 'Appointment', lsKey: 'medical_pulse_endpoint_appointment' },
-                evisit: { label: 'E-visit', lsKey: 'medical_pulse_endpoint_evisit' } };
-  var lineFilter = 'appointment';
+  var LS_KEY = 'cardio_pulse_endpoint';
+  var DEFAULT_ENDPOINT = ''; // filled in once the Apps Script Web App is deployed
   var RAW = null;          // { fields, rows } as returned by the endpoint
   var FIELD_IDX = {};      // field name -> column index in each row array
   var TARGETS = null;      // { fields, rows } from the Targets tab
@@ -446,36 +438,33 @@
   var dateFilter = 'last7'; // lastday | last7 | last30 | mtd | qtd | custom
   var customFrom = null, customTo = null; // ISO strings, only used when dateFilter === 'custom'
   var channelTypeFilter = '';
-  // Channel names are compared without surrounding spaces / case: Appointment's Settings list says "Organic Web " (trailing
-  // space) while its data rows say "Organic Web" — an exact compare silently showed nothing for that channel.
-  function chanKey(v){ return String(v === undefined || v === null ? '' : v).trim().toLowerCase(); }
-  var brandFilter = ''; // only meaningful on E-visit today — Appointment has no Brand column, filter is inert there
   var trendMetric = 'leads';
   var trendGranularity = 'daily'; // daily | weekly | monthly | yearly
-  var forecastOn = false; // the "Forecast" checkbox on the trend chart
   var breakdownDim = 'channelType';
   var breakdownSort = { key: 'cpl', dir: 'asc' }; // default matches the table's old fixed "best CPL first" order
-  var BREAKDOWN_SORT_DEFAULT_DIR_ = { name:'asc', leads:'desc', mql:'desc', orders:'desc', cost:'desc', cpl:'asc', cpo:'asc' };
+  var BREAKDOWN_SORT_DEFAULT_DIR_ = { name:'asc', leads:'desc', mql:'desc', visit:'desc', crMqlVisit:'desc', orders:'desc', cost:'desc', cpl:'asc', cpv:'asc', cpo:'asc' };
   var activeTab = 'overview';
   var charts = { trend: null, breakdown: null, lp: null, cp: null };
+  var FORECAST_METRICS = ['leads','cpl','mql','cpmql','visit','cpv']; // the metrics this feature covers
+  var forecastOn = false; // the "Forecast" checkbox on the trend chart
 
-  var TYPED_METRICS = ['leads','mql','orders','cost'];
+  var TYPED_METRICS = ['leads','mql','orders','cost','visit'];
   var METRIC_LABELS = { cost:'Cost (IRR)', impressions:'Impressions', clicks:'Clicks', sessions:'Sessions',
-    leads:'Leads', mql:'MQL', orders:'Orders', sms:'SMS Sent',
-    cpl:'CPL', cpo:'CPO', cpmql:'CPMQL' };
+    leads:'Leads', mql:'MQL', orders:'Orders', sms:'SMS Sent', visit:'Visit',
+    cpl:'CPL', cpo:'CPO', cpmql:'CPMQL', cpv:'CPV', crMqlVisit:'MQL → Visit %' };
 
   var els = {};
-  ['status-dot','status-text','settings-panel','endpoint-input','endpoint-label','empty-state','empty-title','empty-desc','error-state','error-detail',
-   'content','tiles','line-select','date-filter-select','custom-range','from-y','from-m','from-d','to-y','to-m','to-d','channel-type-select','brand-select','range-label',
+  ['status-dot','status-text','settings-panel','endpoint-input','empty-state','error-state','error-detail',
+   'content','tiles','date-filter-select','custom-range','from-y','from-m','from-d','to-y','to-m','to-d','channel-type-select','range-label',
    'trend-metric-select','trend-granularity-select','breakdown-dim-select','footer-time',
    'forecast-toggle','forecast-toggle-label','forecast-hint',
    'lp-summary','cp-summary'].forEach(function(id){
     els[id.replace(/-([a-z])/g,function(_,c){return c.toUpperCase();})] = document.getElementById(id);
   });
 
-  function getEndpoint(line){ try { return localStorage.getItem(LINES[line].lsKey) || ''; } catch(e){ return ''; } }
-  function setEndpoint(line, url){ try { localStorage.setItem(LINES[line].lsKey, url); } catch(e){} }
-  function clearEndpoint(line){ try { localStorage.removeItem(LINES[line].lsKey); } catch(e){} }
+  function getEndpoint(){ try { return localStorage.getItem(LS_KEY) || DEFAULT_ENDPOINT; } catch(e){ return DEFAULT_ENDPOINT; } }
+  function setEndpoint(url){ try { localStorage.setItem(LS_KEY, url); } catch(e){} }
+  function clearEndpoint(){ try { localStorage.removeItem(LS_KEY); } catch(e){} }
 
   function showOnly(id){
     ['empty-state','error-state','content'].forEach(function(x){ document.getElementById(x).hidden = (x !== id); });
@@ -486,7 +475,7 @@
   }
 
   // ---------- Data access helpers ----------
-  // Medical has no Homelab-style Type split (Premium/Prescription/Free) — every metric is one blended
+  // Cardio has no Homelab-style Type split (Premium/Prescription/Free) — every metric is one blended
   // column, so this is a plain field lookup with no type-conditional branching.
   function field(row, name){ return row[FIELD_IDX[name]]; }
   function metricValue(row, name){ return field(row, name) || 0; }
@@ -494,27 +483,69 @@
   // ---------- Target lookup (Targets tab: one row per Jalali Year+Month) ----------
   function tfield(row, name){ return row[TARGET_IDX[name]] || 0; }
 
-  // Per-Channel-Type targets exist only for Order and Cost ("Target Order <Channel>" / "Target Cost
-  // <Channel>" columns) — when a specific Channel Type filter is active, prefer that channel's own
-  // target over the blended one. "Organic Web"/"Organic App" are separate channels here (not one
-  // "Organic"), and Appointment's real dropdown value has a trailing space ("Organic Web ") — trimmed
-  // before matching. Channels with no target column (e.g. E-visit-only "Social") fall back to blended.
-  var CHANNEL_TARGET_METRICS_ = { orders: 'order', cost: 'cost' };
-  var CHANNEL_TARGET_SUFFIX_ = { 'Performance':'Performance', 'Organic Web':'OrganicWeb', 'Organic App':'OrganicApp', 'Blog':'Blog', 'Retention':'Retention', 'eCRM':'Ecrm' };
+  // Cardio has two lead target groups: "Performance" and "Awareness". Awareness = Blog + Direct + SEO,
+  // and blank Channel Type too (no UTM — those already land in Direct in this BI). It's a synthetic
+  // filter value rather than a real Channel Type, so the same group drives both which rows are shown
+  // and which target column is read.
+  var AWARENESS_FILTER = '__awareness';
+  // "All except Retention": every channel type but Retention (blank channel types stay in, as in All). Another
+  // synthetic filter value; its plan is the blended plan minus the Retention plan.
+  var NO_RETENTION_FILTER = '__noRetention';
+  var AWARENESS_MEMBERS_ = { 'Blog':1, 'Direct':1, '':1 };
+  function inChannelFilter(channelType){
+    if (!channelTypeFilter) return true;
+    var ct = (channelType || '').toString().trim();
+    if (channelTypeFilter === AWARENESS_FILTER) return !!AWARENESS_MEMBERS_[ct];
+    if (channelTypeFilter === NO_RETENTION_FILTER) return ct !== 'Retention';
+    return ct === channelTypeFilter.trim();
+  }
+
+  // Per-group targets exist only for MQL and Cost ("Target MQL <Group>" / "Budget <Group>" columns; Cardio plans MQL, not Lead).
+  // With a channel filter active, only a group that actually has a target column gets one — any other
+  // channel (e.g. Referral, or Blog on its own) shows "No target set" rather than borrowing the blended
+  // total, which would be compared against a single channel's actuals.
+  var CHANNEL_TARGET_METRICS_ = { mql: 'mql', cost: 'cost' };
+  var CHANNEL_TARGET_SUFFIX_ = { 'Performance':'Performance', '__awareness':'Awareness', 'Retention':'Retention', 'eCRM':'Ecrm' };
+
+  // Visits have no plan column of their own: the plan is the group's MQL plan x its MQL->Visit conversion
+  // plan ("Target CR MQL-Visit <Group>"; a value above 1 is read as a percentage, so 15 and 0.15 both mean 15%).
+  // With a group filter that group's plan is used; in the All view the groups' visit plans are added up, but
+  // only once EVERY group that has a lead plan also has a conversion plan — otherwise a partial sum would be
+  // compared against all visits. No conversion plan entered = no visit target (and so no cost-per-visit target).
+  var VISIT_GROUPS_ = ['Performance','Awareness','Retention','Ecrm'];
+  function crValue_(row, group){ var v = tfield(row, 'crVisit' + group); return v > 1 ? v/100 : v; }
+  function monthlyVisitTarget(row){
+    var noRet = channelTypeFilter === NO_RETENTION_FILTER;
+    var suffix = channelTypeFilter ? CHANNEL_TARGET_SUFFIX_[channelTypeFilter.trim()] : null;
+    if (channelTypeFilter && !noRet) {
+      if (!suffix) return 0;
+      var g = suffix; return tfield(row, 'mql' + g) * crValue_(row, g);
+    }
+    var sum = 0;
+    for (var i = 0; i < VISIT_GROUPS_.length; i++){
+      if (noRet && VISIT_GROUPS_[i] === 'Retention') continue;
+      var grp = VISIT_GROUPS_[i], plan = tfield(row, 'mql' + grp), cr = crValue_(row, grp);
+      if (plan > 0 && !(cr > 0)) return 0;
+      sum += plan * cr;
+    }
+    return sum;
+  }
 
   function monthlyTargetFor(metricKey, jy, jmIdx){
     var row = TARGETS_BY_KEY[jy + '|' + JMONTHS_FULL[jmIdx-1]];
     if (!row) return 0;
+    if (metricKey === 'visit') return monthlyVisitTarget(row);
     var chPrefix = CHANNEL_TARGET_METRICS_[metricKey];
-    if (channelTypeFilter){
+    if (channelTypeFilter === NO_RETENTION_FILTER && chPrefix) return Math.max(0, tfield(row, metricKey) - tfield(row, chPrefix + 'Retention'));
+    if (channelTypeFilter && chPrefix){
       var suffix = CHANNEL_TARGET_SUFFIX_[channelTypeFilter.trim()];
-      if (!suffix || !chPrefix) return 0;     // no plan column for this channel / metric -> no plan (not the blended one)
-      return tfield(row, chPrefix + suffix);
+      return suffix ? tfield(row, chPrefix + suffix) : 0;
     }
+    if (channelTypeFilter && channelTypeFilter !== NO_RETENTION_FILTER) return 0; // no group plan for this metric
     return tfield(row, metricKey);
   }
 
-  var RATIO_DENOM = { cpl:'leads', cpmql:'mql', cpo:'orders' };
+  var RATIO_DENOM = { cpl:'leads', cpmql:'mql', cpo:'orders', cpv:'visit' };
 
   function monthlyRatioTarget(metricKey, jy, jmIdx){
     var denomKey = RATIO_DENOM[metricKey];
@@ -561,7 +592,7 @@
     return { target: targetForDateRange(metricKey, range.from, range.to) };
   }
 
-  var LOWER_BETTER = { cost:1, cpl:1, cpmql:1, cpo:1 };
+  var LOWER_BETTER = { cost:1, cpl:1, cpmql:1, cpo:1, cpv:1 };
 
   function statChip(label, ratio, lowerBetter){
     if (ratio === null || !isFinite(ratio)) return '<span class="stat-chip neutral">'+label+' —</span>';
@@ -667,7 +698,7 @@
     if (!refPlanned) return { ok:false, reason:'No plan for the past two weeks' };
     var refRows = RAW.rows.filter(function(row){
       var d = field(row,'date');
-      return d >= refFrom && d <= anchorISO && (!channelTypeFilter || chanKey(field(row,'channelType')) === chanKey(channelTypeFilter)) && (!brandFilter || field(row,'brand') === brandFilter) && smMatch(row);
+      return d >= refFrom && d <= anchorISO && inChannelFilter(field(row,'channelType')) && smMatch(row);
     });
     var pace = computeTotals(refRows)[metricKey] / refPlanned;
     var planned = targetForDateRange(metricKey, nb.from, nb.to);
@@ -789,9 +820,8 @@
     return RAW.rows.filter(function(row){
       var d = field(row,'date');
       if (d < range.from || d > range.to) return false;
-      if (channelTypeFilter && chanKey(field(row,'channelType')) !== chanKey(channelTypeFilter)) return false;
+      if (!inChannelFilter(field(row,'channelType'))) return false;
       if (!smMatch(row)) return false;
-      if (brandFilter && field(row,'brand') !== brandFilter) return false;
       return true;
     });
   }
@@ -879,32 +909,17 @@
       RAW.rows.forEach(function(row){ var v = field(row,'channelType'); if (v) types[v] = true; });
       return Object.keys(types).sort();
     })();
-    var seenCh = {}, optList = [];
-    list.forEach(function(t){ var k = chanKey(t); if (!k || seenCh[k]) return; seenCh[k] = true; optList.push(String(t).trim()); });
-    var extraCh = {}; RAW.rows.forEach(function(row){ var v = field(row,'channelType'); var k = chanKey(v); if (k && k !== '0' && !seenCh[k] && !extraCh[k]) extraCh[k] = String(v).trim(); }); // '0' = a blank cell
-    Object.keys(extraCh).sort().forEach(function(k){ optList.push(extraCh[k]); }); // seen in the data but missing from the Settings list
-    els.channelTypeSelect.innerHTML = '<option value="">Channel Type: All</option>';
-    optList.forEach(function(t){
+    els.channelTypeSelect.innerHTML = '<option value="">Channel Type: All</option>' +
+      '<option value="'+AWARENESS_FILTER+'">Awareness (Blog + Direct + SEO)</option>' +
+      '<option value="'+NO_RETENTION_FILTER+'">All except Retention</option>';
+    list.forEach(function(t){
       var o = document.createElement('option'); o.value = t; o.textContent = t;
       els.channelTypeSelect.appendChild(o);
     });
     els.channelTypeSelect.value = current;
 
-    // No canonical Brand list endpoint (only E-visit's Data tab even has the column) — same fallback
-    // used above for Channel Type when no server-provided list exists: scan what's actually loaded.
-    var currentBrand = els.brandSelect.value;
-    var brands = {};
-    RAW.rows.forEach(function(row){ var v = field(row,'brand'); if (v) brands[v] = true; });
-    var brandList = Object.keys(brands).sort();
-    els.brandSelect.innerHTML = '<option value="">Brand: All</option>';
-    brandList.forEach(function(b){
-      var o = document.createElement('option'); o.value = b; o.textContent = b;
-      els.brandSelect.appendChild(o);
-    });
-    els.brandSelect.value = currentBrand;
-
     if (!els.trendMetricSelect.options.length){
-      ['leads','mql','orders','cost','sessions','impressions','clicks','cpl','cpo','cpmql'].forEach(function(m){
+      ['leads','mql','visit','crMqlVisit','orders','cost','sessions','impressions','clicks','cpl','cpo','cpmql','cpv'].forEach(function(m){
         var o = document.createElement('option'); o.value = m; o.textContent = METRIC_LABELS[m];
         els.trendMetricSelect.appendChild(o);
       });
@@ -913,6 +928,8 @@
   }
 
   function fmtNum(n){ return Math.round(n).toLocaleString('en-US'); }
+  // Conversion rate shown as a percentage with one decimal (MQL -> Visit, stored as 0-100).
+  function fmtCR(n){ return isFinite(n) && n > 0 ? n.toFixed(1) + '%' : '—'; }
   function fmtRatio(n){ return isFinite(n) && n > 0 ? fmtNum(n) : '—'; }
 
   function computeTotals(rows){
@@ -928,31 +945,28 @@
     t.cpl = t.leads ? t.cost/t.leads : 0;
     t.cpo = t.orders ? t.cost/t.orders : 0;
     t.cpmql = t.mql ? t.cost/t.mql : 0;
+    t.cpv = t.visit ? t.cost/t.visit : 0;
+    t.crMqlVisit = t.mql ? t.visit/t.mql*100 : 0;
     return t;
   }
 
-  var TARGETABLE_METRICS = { cost:1, impressions:1, clicks:1, sessions:1, leads:1, mql:1, orders:1, sms:1, cpl:1, cpo:1, cpmql:1 };
+  var TARGETABLE_METRICS = { cost:1, impressions:1, clicks:1, sessions:1, leads:1, mql:1, orders:1, sms:1, visit:1, cpl:1, cpo:1, cpmql:1, cpv:1 };
 
   function renderTiles(rows){
     var t = computeTotals(rows);
-    var order = ['cost','impressions','clicks','sessions','leads','mql','orders','sms','cpl','cpo','cpmql'];
+    var order = ['cost','impressions','clicks','sessions','leads','mql','visit','crMqlVisit','orders','sms','cpl','cpmql','cpv','cpo'];
     els.tiles.innerHTML = '';
     order.forEach(function(k){
       var actual = t[k];
-      var alwaysShow = (k === 'orders' || k === 'cpo'); // the two numbers the team always looks for
-      var info = TARGETABLE_METRICS[k] ? periodTargetInfo(k) : null;
-      var hasTarget = !!(info && info.target > 0);
-      if (!actual && !alwaysShow && !hasTarget) return; // hide tiles with neither data nor a target for the current filter
-      var isDerived = (k==='cpl'||k==='cpo'||k==='cpmql');
+      if (!actual) return; // hide tiles with no data for the current filter — keeps the grid focused
+      var isDerived = (k==='cpl'||k==='cpo'||k==='cpmql'||k==='cpv'||k==='crMqlVisit');
       var tile = document.createElement('div');
       tile.className = 'tile' + (isDerived ? ' derived' : '');
       var html = '<div class="label">'+METRIC_LABELS[k]+'</div>'+
         '<div class="value tabular"></div>';
 
-      if (!actual && alwaysShow && (k === 'cpo' || !hasTarget)){
-        // nothing recorded: say so instead of showing a 0% "attainment" (a zero CPO would read as perfect)
-        html += '<div class="target-line">' + (k === 'cpo' ? (t.cost ? 'No orders in this range' : 'No cost recorded in this range') : 'No orders in this range') + '</div>';
-      } else if (info && info.target > 0){
+      var info = TARGETABLE_METRICS[k] ? periodTargetInfo(k) : null;
+      if (info && info.target > 0){
         var attain = actual / info.target;
         var variance = attain - 1;
         html += '<div class="target-line">'+(k==='cost'?'Budget':'Target')+' '+fmtNum(info.target)+'</div>';
@@ -963,7 +977,7 @@
       }
       tile.innerHTML = html;
       els.tiles.appendChild(tile);
-      animateValue(tile.querySelector('.value'), actual, isDerived ? fmtRatio : fmtNum);
+      animateValue(tile.querySelector('.value'), actual, k==='crMqlVisit' ? fmtCR : (isDerived ? fmtRatio : fmtNum));
     });
     animateTileEntrance(els.tiles);
   }
@@ -1010,12 +1024,13 @@
   function renderTrend(rows){
     var range = dateRangeFor(dateFilter);
     if (!range) return;
-    var isRatioMetric = trendMetric==='cpl'||trendMetric==='cpo'||trendMetric==='cpmql';
+    var isRatioMetric = trendMetric==='cpl'||trendMetric==='cpo'||trendMetric==='cpmql'||trendMetric==='cpv';
+    var isPctMetric = trendMetric==='crMqlVisit'; // visits / MQL, per bucket
     var buckets = {}, order = [];
     var cur = range.from;
     while (cur <= range.to){
       var b0 = bucketDate(cur, trendGranularity);
-      if (!buckets[b0.key]){ buckets[b0.key] = { label:b0.label, jy:b0.jy, jm:b0.jm, jd:b0.jd, week:b0.week, type:b0.type, value:0, cost:0, count:0 }; order.push(b0.key); }
+      if (!buckets[b0.key]){ buckets[b0.key] = { label:b0.label, jy:b0.jy, jm:b0.jm, jd:b0.jd, week:b0.week, type:b0.type, value:0, cost:0, count:0, num:0 }; order.push(b0.key); }
       cur = isoAddDays(cur,1);
     }
     rows.forEach(function(row){
@@ -1025,8 +1040,11 @@
       if (!bucket) return; // outside the selected range
       if (isRatioMetric){
         bucket.cost += metricValue(row,'cost');
-        var denom = trendMetric==='cpl' ? 'leads' : (trendMetric==='cpo' ? 'orders' : 'mql');
+        var denom = trendMetric==='cpl' ? 'leads' : (trendMetric==='cpo' ? 'orders' : (trendMetric==='cpv' ? 'visit' : 'mql'));
         bucket.count += metricValue(row,denom);
+      } else if (isPctMetric){
+        bucket.num += metricValue(row,'visit');
+        bucket.count += metricValue(row,'mql');
       } else if (['impressions','clicks','sessions'].indexOf(trendMetric) !== -1){
         bucket.value += field(row,trendMetric)||0;
       } else {
@@ -1038,18 +1056,18 @@
     order.forEach(function(key){
       var b = buckets[key];
       labels.push(b.label);
-      values.push(isRatioMetric ? (b.count ? Math.round(b.cost/b.count) : 0) : b.value);
+      values.push(isPctMetric ? (b.count ? Math.round(b.num/b.count*1000)/10 : 0) : (isRatioMetric ? (b.count ? Math.round(b.cost/b.count) : 0) : b.value));
       if (isTargetable) targetValues.push(bucketTargetFor(b, trendMetric, isRatioMetric));
     });
     // Forecast (checkbox, top right of the chart): ONE extra bucket after the real ones — the next week. Actual/Target stay null there (Chart.js breaks the line on
     // null) and a separate "Forecast" dataset holds the single point. The checkbox is only available for
-    // metrics that have a plan, on the Weekly chart; when it's on but there's nothing to forecast from (no
+    // the forecastable metrics on the Weekly chart; when it's on but there's nothing to forecast from (no
     // plan entered), the reason is shown next to it instead of silently drawing nothing.
     var forecastValues = null;
-    var canForecast = !!TARGETABLE_METRICS[trendMetric] && !!FORECAST_GRANULARITIES_[trendGranularity];
+    var canForecast = FORECAST_METRICS.indexOf(trendMetric) !== -1 && !!FORECAST_GRANULARITIES_[trendGranularity];
     els.forecastToggle.disabled = !canForecast;
     els.forecastToggleLabel.classList.toggle('disabled', !canForecast);
-    els.forecastToggleLabel.title = canForecast ? '' : 'Forecast is available on the Weekly chart, for metrics that have a plan (target)';
+    els.forecastToggleLabel.title = canForecast ? '' : 'Forecast is available on the Weekly chart for Leads, CPL, MQL and CPMQL';
     els.forecastHint.textContent = '';
     if (forecastOn && canForecast){
       var fc = computeForecast(trendMetric);
@@ -1071,7 +1089,7 @@
     var accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
     var faint = getComputedStyle(document.body).getPropertyValue('--text-faint').trim();
     var warn = getComputedStyle(document.body).getPropertyValue('--warn').trim();
-    var fmtLabel = isRatioMetric ? fmtRatio : fmtNum;
+    var fmtLabel = isPctMetric ? fmtCR : (isRatioMetric ? fmtRatio : fmtNum);
     // A 1-2 point range (e.g. "Last day with data") renders as a near-invisible dot at the default
     // radius — size points up so a sparse range is still clearly visible, not just technically present.
     // Markers fade out only past a genuinely dense range (60+ points, e.g. daily-granularity QTD).
@@ -1107,7 +1125,7 @@
     });
   }
 
-  var DIM_LABEL = { channelType:'Channel Type', brand:'Brand', sourceMedium:'Source / Medium', campaign:'Campaign', landingPage:'Landing Page', copy:'Copy' };
+  var DIM_LABEL = { channelType:'Channel Type', sourceMedium:'Source / Medium', campaign:'Campaign', landingPage:'Landing Page', copy:'Copy' };
 
   function groupKey(row, dim){
     if (dim === 'sourceMedium'){
@@ -1125,12 +1143,13 @@
     rows.forEach(function(row){
       var key = keyFn(row);
       if (key === null) return;
-      if (!groups[key]) groups[key] = { sessions:0, leads:0, mql:0, orders:0, cost:0 };
+      if (!groups[key]) groups[key] = { sessions:0, leads:0, mql:0, orders:0, cost:0, visit:0 };
       var g = groups[key];
       if (opts.sessions) g.sessions += field(row,'sessions')||0;
       g.leads += metricValue(row,'leads');
       g.mql += metricValue(row,'mql');
       g.orders += metricValue(row,'orders');
+      g.visit += metricValue(row,'visit');
       g.cost += metricValue(row,'cost');
     });
     var list = Object.keys(groups).map(function(k){
@@ -1138,6 +1157,8 @@
       g.name = k;
       g.cpl = g.leads ? g.cost/g.leads : 0;
       g.cpo = g.orders ? g.cost/g.orders : 0;
+      g.cpv = g.visit ? g.cost/g.visit : 0;
+      g.crMqlVisit = g.mql ? g.visit/g.mql*100 : 0;
       g.sessLead = g.sessions ? g.leads/g.sessions : 0;
       g.mqlOrder = g.mql ? g.orders/g.mql : 0;
       return g;
@@ -1206,8 +1227,8 @@
       if (!g.leads) tr.className = 'zero';
       tr.innerHTML = '<td class="rank">'+(i+1)+'</td><td>'+escapeHtml(g.name)+'</td>'+
         '<td class="num">'+fmtNum(g.leads)+'</td><td class="num">'+fmtNum(g.mql)+'</td>'+
-        '<td class="num">'+fmtNum(g.orders)+'</td><td class="num">'+fmtNum(g.cost)+'</td>'+
-        '<td class="num">'+fmtRatio(g.cpl)+'</td><td class="num">'+fmtRatio(g.cpo)+'</td>';
+        '<td class="num">'+fmtNum(g.visit)+'</td><td class="num">'+fmtCR(g.crMqlVisit)+'</td><td class="num">'+fmtNum(g.orders)+'</td><td class="num">'+fmtNum(g.cost)+'</td>'+
+        '<td class="num">'+fmtRatio(g.cpl)+'</td><td class="num">'+fmtRatio(g.cpv)+'</td><td class="num">'+fmtRatio(g.cpo)+'</td>';
       tbody.appendChild(tr);
     });
     updateBreakdownHeaderIndicators();
@@ -1360,17 +1381,8 @@
     renderAll();
   }
 
-  // Switching lines swaps the entire dataset out from under the page — nothing from the old line's
-  // data/targets/channel list is valid for the new one, so every derived bit of state resets.
-  function resetForLineSwitch(){
-    RAW = null; TARGETS = null; CHANNEL_TYPES = []; anchorISO = null; minISO = null;
-    customFrom = null; customTo = null; channelTypeFilter = ''; brandFilter = ''; smFilter = null;
-  }
-
   function load(isManual){
-    var lineLabel = LINES[lineFilter].label;
-    els.emptyTitle.textContent = 'Connect to the ' + lineLabel + ' sheet';
-    var endpoint = getEndpoint(lineFilter);
+    var endpoint = getEndpoint();
     if (!endpoint){ showOnly('empty-state'); setStatus('', 'Not connected yet'); return; }
     showOnly('content');
     if (isManual) skeletonTiles();
@@ -1399,19 +1411,13 @@
   document.getElementById('error-retry').addEventListener('click', function(){ load(true); });
   document.getElementById('close-settings').addEventListener('click', hideSettingsPanel);
   document.getElementById('clear-endpoint').addEventListener('click', function(){
-    clearEndpoint(lineFilter); els.endpointInput.value = ''; hideSettingsPanel(); load();
+    clearEndpoint(); els.endpointInput.value = ''; hideSettingsPanel(); load();
   });
   document.getElementById('save-endpoint').addEventListener('click', function(){
     var v = els.endpointInput.value.trim(); if (!v) return;
-    setEndpoint(lineFilter, v); hideSettingsPanel(); load(true);
-  });
-  els.lineSelect.addEventListener('change', function(){
-    lineFilter = els.lineSelect.value;
-    resetForLineSwitch();
-    load(true);
+    setEndpoint(v); hideSettingsPanel(); load(true);
   });
   els.channelTypeSelect.addEventListener('change', function(){ channelTypeFilter = els.channelTypeSelect.value; renderAll(); });
-  els.brandSelect.addEventListener('change', function(){ brandFilter = els.brandSelect.value; renderAll(); });
   els.trendMetricSelect.addEventListener('change', function(){ trendMetric = els.trendMetricSelect.value; renderTrend(filteredRows()); });
   els.trendGranularitySelect.addEventListener('change', function(){ trendGranularity = els.trendGranularitySelect.value; renderTrend(filteredRows()); });
   els.forecastToggle.addEventListener('change', function(){ forecastOn = els.forecastToggle.checked; renderTrend(filteredRows()); });
@@ -1429,12 +1435,7 @@
   ['toY','toM','toD'].forEach(function(k){ els[k].addEventListener('change', function(){ onCustomDateChange('to'); }); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.addEventListener('click', function(){ switchTab(b.dataset.tab); }); });
 
-  function openSettings(){
-    els.endpointLabel.textContent = LINES[lineFilter].label + ' endpoint URL';
-    els.endpointInput.value = getEndpoint(lineFilter);
-    showSettingsPanel();
-    els.endpointInput.focus();
-  }
+  function openSettings(){ els.endpointInput.value = getEndpoint(); showSettingsPanel(); els.endpointInput.focus(); }
 
   load();
   setInterval(function(){ load(false); }, 5 * 60 * 1000);
