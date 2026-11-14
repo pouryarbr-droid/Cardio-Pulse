@@ -536,6 +536,8 @@
     var row = TARGETS_BY_KEY[jy + '|' + JMONTHS_FULL[jmIdx-1]];
     if (!row) return 0;
     if (metricKey === 'visit') return monthlyVisitTarget(row);
+    // The MQL plan belongs to the Performance group only: no MQL target (so no CPMQL target either) in the All views.
+    if (metricKey === 'mql' && (!channelTypeFilter || channelTypeFilter === NO_RETENTION_FILTER)) return 0;
     var chPrefix = CHANNEL_TARGET_METRICS_[metricKey];
     if (channelTypeFilter === NO_RETENTION_FILTER && chPrefix) return Math.max(0, tfield(row, metricKey) - tfield(row, chPrefix + 'Retention'));
     if (channelTypeFilter && chPrefix){
