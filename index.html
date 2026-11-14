@@ -500,15 +500,16 @@
     return ct === channelTypeFilter.trim();
   }
 
-  // Per-group targets exist only for MQL and Cost ("Target MQL <Group>" / "Budget <Group>" columns; Cardio plans MQL, not Lead).
+  // Per-group targets: Lead for every group ("Target Lead <Group>"), MQL for Performance only ("Target MQL Performance" —
+  // the MQL plan is for the performance channels, the other groups plan leads), and Cost ("Budget <Group>").
   // With a channel filter active, only a group that actually has a target column gets one — any other
   // channel (e.g. Referral, or Blog on its own) shows "No target set" rather than borrowing the blended
   // total, which would be compared against a single channel's actuals.
-  var CHANNEL_TARGET_METRICS_ = { mql: 'mql', cost: 'cost' };
+  var CHANNEL_TARGET_METRICS_ = { leads: 'lead', mql: 'mql', cost: 'cost' };
   var CHANNEL_TARGET_SUFFIX_ = { 'Performance':'Performance', '__awareness':'Awareness', 'Retention':'Retention', 'eCRM':'Ecrm' };
 
-  // Visits have no plan column of their own: the plan is the group's MQL plan x its MQL->Visit conversion
-  // plan ("Target CR MQL-Visit <Group>"; a value above 1 is read as a percentage, so 15 and 0.15 both mean 15%).
+  // Visits have no plan column of their own: the plan is the group's Lead plan x its Lead->Visit conversion
+  // plan ("Target CR Lead-Visit <Group>"; a value above 1 is read as a percentage, so 15 and 0.15 both mean 15%).
   // With a group filter that group's plan is used; in the All view the groups' visit plans are added up, but
   // only once EVERY group that has a lead plan also has a conversion plan — otherwise a partial sum would be
   // compared against all visits. No conversion plan entered = no visit target (and so no cost-per-visit target).
@@ -519,14 +520,14 @@
     var suffix = channelTypeFilter ? CHANNEL_TARGET_SUFFIX_[channelTypeFilter.trim()] : null;
     if (channelTypeFilter && !noRet) {
       if (!suffix) return 0;
-      var g = suffix; return tfield(row, 'mql' + g) * crValue_(row, g);
+      var g = suffix; return tfield(row, 'lead' + g) * crValue_(row, g);
     }
     var sum = 0;
     for (var i = 0; i < VISIT_GROUPS_.length; i++){
       if (noRet && VISIT_GROUPS_[i] === 'Retention') continue;
-      var grp = VISIT_GROUPS_[i], plan = tfield(row, 'mql' + grp), cr = crValue_(row, grp);
-      if (plan > 0 && !(cr > 0)) return 0;
-      sum += plan * cr;
+      var grp = VISIT_GROUPS_[i], lead = tfield(row, 'lead' + grp), cr = crValue_(row, grp);
+      if (lead > 0 && !(cr > 0)) return 0;
+      sum += lead * cr;
     }
     return sum;
   }
@@ -1367,7 +1368,7 @@
     TARGETS = payload.targets || { fields: [], rows: [] };
     TARGET_IDX = {};
     TARGETS.fields.forEach(function(f,i){ TARGET_IDX[f] = i; });
-    var badCells = sanitizeNumbers(RAW, TARGETS);
+    sanitizeNumbers(RAW, TARGETS);
     TARGETS_BY_KEY = {};
     TARGETS.rows.forEach(function(row){
       var key = row[TARGET_IDX.year] + '|' + row[TARGET_IDX.month];
