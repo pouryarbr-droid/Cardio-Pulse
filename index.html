@@ -277,6 +277,7 @@
           <h3>Breakdown</h3>
           <select id="breakdown-dim-select">
             <option value="channelType">Channel Type</option>
+            <option value="source">Source</option>
             <option value="sourceMedium">Source / Medium</option>
             <option value="campaign">Campaign</option>
             <option value="landingPage">Landing Page</option>
@@ -538,6 +539,8 @@
     if (metricKey === 'visit') return monthlyVisitTarget(row);
     // The MQL plan belongs to the Performance group only: no MQL target (so no CPMQL target either) in the All views.
     if (metricKey === 'mql' && (!channelTypeFilter || channelTypeFilter === NO_RETENTION_FILTER)) return 0;
+    // The total Leads plan is the plan for "All except Retention"; plain "All" also holds Retention's leads, so it gets no Leads target.
+    if (metricKey === 'leads' && !channelTypeFilter) return 0;
     var chPrefix = CHANNEL_TARGET_METRICS_[metricKey];
     if (channelTypeFilter === NO_RETENTION_FILTER && chPrefix) return Math.max(0, tfield(row, metricKey) - tfield(row, chPrefix + 'Retention'));
     if (channelTypeFilter && chPrefix){
@@ -1128,7 +1131,7 @@
     });
   }
 
-  var DIM_LABEL = { channelType:'Channel Type', sourceMedium:'Source / Medium', campaign:'Campaign', landingPage:'Landing Page', copy:'Copy' };
+  var DIM_LABEL = { channelType:'Channel Type', source:'Source', sourceMedium:'Source / Medium', campaign:'Campaign', landingPage:'Landing Page', copy:'Copy' };
 
   function groupKey(row, dim){
     if (dim === 'sourceMedium'){
